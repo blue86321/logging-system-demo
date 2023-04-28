@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  fluent-bit:
+    image: fluent/fluent-bit:2.0
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    networks:
+      - local
+    ports:
+      - "24224:24224"
+      - "9880:9880"
+    logging:
+      driver: none
+  test-app-stdout:
+    container_name: test-app-stdout
+    build:
+      context: ./test-app-stdout
+      dockerfile: Dockerfile
+    networks:
+      - local
+    depends_on:
+      - fluent-bit
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+
+networks:
+  local:
+    driver: bridge
