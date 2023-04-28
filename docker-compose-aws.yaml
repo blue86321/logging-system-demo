@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  fluent-bit:
+    image: fluent/fluent-bit:2.0
+    volumes:
+      - ./fluent-bit-aws.conf:/fluent-bit/etc/fluent-bit.conf
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_OPENSEARCH_HOST=${AWS_OPENSEARCH_HOST}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_OPENSEARCH_ROLE_ARN=${AWS_OPENSEARCH_ROLE_ARN}
+    networks:
+      - local
+    ports:
+      - "24224:24224"
+      - "9880:9880"
+  test-app-stdout:
+    container_name: test-app-stdout
+    build:
+      context: ./test-app-stdout
+      dockerfile: Dockerfile
+    networks:
+      - local
+    depends_on:
+      fluent-bit:
+        condition: service_started
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+  
+
+  
+
+networks:
+  local:
+    driver: bridge
