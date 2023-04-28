@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  fluent-bit:
+    image: fluent/fluent-bit:2.0
+    volumes:
+      - ./fluent-bit-es.conf:/fluent-bit/etc/fluent-bit.conf
+    environment:
+      - ES_HOST=es
+      - ES_PORT=9200
+    networks:
+      - local
+    ports:
+      - "24224:24224"
+      - "9880:9880"
+  test-app-stdout:
+    container_name: test-app-stdout
+    build:
+      context: ./test-app-stdout
+      dockerfile: Dockerfile
+    networks:
+      - local
+    depends_on:
+      es:
+        condition: service_healthy
+      kb:
+        condition: service_healthy
+      fluent-bit:
+        condition: service_started
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+  # Elasticsearch and Kibana
+  es:
+    image: elasticsearch:7.16.3
+    mem_limit: 1g
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - node.name=es
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+    depends_on:
+      - fluent-bit
+    networks:
+      - local
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:9200/_cat/health | grep -q -e 'yellow' -e 'green'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+  kb:
+    image: kibana:7.16.3
+    mem_limit: 512m
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200
+      - ELASTICSEARCH_USERNAME="kibana"
+      - ELASTICSEARCH_PASSWORD="123456"
+    depends_on:
+      fluent-bit:
+        condition: service_started
+      es:
+        condition: service_healthy
+    networks:
+      - local
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  
+
+networks:
+  local:
+    driver: bridge
