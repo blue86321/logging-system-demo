@@ -3,10 +3,12 @@ output "AWS_REGION" {
   value = var.region
 }
 
+# Only for demo, as an environment variable for fluent-bit
 output "AWS_ACCESS_KEY_ID" {
   value = var.access_key
 }
 
+# Only for demo, as an environment variable for fluent-bit
 output "AWS_SECRET_ACCESS_KEY" {
   value = var.secret_key
 }

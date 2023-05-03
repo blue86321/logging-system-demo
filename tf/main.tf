@@ -6,7 +6,7 @@ provider "aws" {
 
 module "opensearch" {
   source = "./modules/opensearch"
-  
+
   domain_name = var.domain_name
-  region = var.region
+  region      = var.region
 }

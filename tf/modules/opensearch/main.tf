@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+resource "aws_iam_service_linked_role" "es" {
+  aws_service_name = "opensearchservice.amazonaws.com"
+}
+
 resource "aws_opensearch_domain" "opensearch" {
   domain_name    = var.domain_name
   engine_version = "OpenSearch_2.5"
@@ -12,14 +16,14 @@ resource "aws_opensearch_domain" "opensearch" {
   }
 
   cluster_config {
-    instance_type  = var.instance_type
-    instance_count = 1
+    instance_type          = var.instance_type
+    instance_count         = 2
+    zone_awareness_enabled = true
 
-    # TODO, wait for further research
-    dedicated_master_enabled = false
-    dedicated_master_count   = 0
-    dedicated_master_type    = "t2.small.elasticsearch"
-    zone_awareness_enabled = false
+    dedicated_master_enabled = true
+    dedicated_master_count   = 3
+    dedicated_master_type    = "m6g.large.search"
+
   }
 
   encrypt_at_rest {
@@ -30,8 +34,13 @@ resource "aws_opensearch_domain" "opensearch" {
     ebs_enabled = true
     iops        = 3000
     throughput  = 125
-    volume_size = 10
+    volume_size = 30
     volume_type = "gp3"
+  }
+
+  auto_tune_options {
+    desired_state       = "ENABLED"
+    rollback_on_disable = "NO_ROLLBACK"
   }
 
   node_to_node_encryption {
@@ -41,11 +50,6 @@ resource "aws_opensearch_domain" "opensearch" {
   domain_endpoint_options {
     enforce_https       = true
     tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
-  }
-
-  advanced_options = {
-    "indices.fielddata.cache.size" : "20",
-    "indices.query.bool.max_clause_count" : "1024",
   }
 
   cognito_options {
@@ -70,4 +74,22 @@ resource "aws_opensearch_domain" "opensearch" {
     ]
   }
   EOF
+
+  log_publishing_options {
+    cloudwatch_log_group_arn = aws_cloudwatch_log_group.search_slow.arn
+    enabled                  = true
+    log_type                 = "SEARCH_SLOW_LOGS"
+  }
+  log_publishing_options {
+    cloudwatch_log_group_arn = aws_cloudwatch_log_group.index_solw.arn
+    enabled                  = true
+    log_type                 = "INDEX_SLOW_LOGS"
+  }
+  log_publishing_options {
+    cloudwatch_log_group_arn = aws_cloudwatch_log_group.error.arn
+    enabled                  = true
+    log_type                 = "ES_APPLICATION_LOGS"
+  }
+
+  depends_on = [aws_iam_service_linked_role.es]
 }

@@ -1,4 +1,4 @@
 region      = "us-west-1"
 access_key  = ""
 secret_key  = ""
-domain_name = "ggo-opensearch"
+domain_name = "myapp"

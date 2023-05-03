@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "es_assume_policy" {
 }
 
 resource "aws_iam_role" "cognito_es_role" {
-  name               = "${replace(var.domain_name, "-", "")}_CognitoAccessForAmazonOpenSearch"
+  name               = "${var.domain_name}_CognitoAccessForAmazonOpenSearch"
   assume_role_policy = data.aws_iam_policy_document.es_assume_policy.json
 }
 
@@ -34,7 +34,7 @@ data "aws_iam_policy" "es_full_access" {
 }
 
 resource "aws_iam_policy" "auth" {
-  name = "Cognito_${replace(var.domain_name, "-", "")}_Auth"
+  name = "${var.domain_name}-cognito-auth"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "auth_master_assume" {
 }
 
 resource "aws_iam_role" "auth_master" {
-  name               = "Cognito_${replace(var.domain_name, "-", "")}_Auth_Master_Role"
+  name               = "${var.domain_name}-cognito-auth-master-role"
   assume_role_policy = data.aws_iam_policy_document.auth_master_assume.json
 }
 
@@ -128,7 +128,7 @@ data "aws_iam_policy_document" "auth_limited_assume" {
 }
 
 resource "aws_iam_role" "auth_limited" {
-  name               = "Cognito_${replace(var.domain_name, "-", "")}_Auth_Limited_Role"
+  name               = "${var.domain_name}-cognito-auth-limited-role"
   assume_role_policy = data.aws_iam_policy_document.auth_limited_assume.json
 }
 
@@ -164,7 +164,7 @@ data "aws_iam_policy_document" "unauth_assume" {
 }
 
 resource "aws_iam_policy" "unauth" {
-  name = "Cognito_${replace(var.domain_name, "-", "")}_Unauth"
+  name = "${var.domain_name}-cognito-unauth"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -181,7 +181,7 @@ resource "aws_iam_policy" "unauth" {
 }
 
 resource "aws_iam_role" "unauth" {
-  name               = "Cognito_${replace(var.domain_name, "-", "")}_Unauth_Role"
+  name               = "${var.domain_name}-cognito-unauth-role"
   assume_role_policy = data.aws_iam_policy_document.unauth_assume.json
 }
 
