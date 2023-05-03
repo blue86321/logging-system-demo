@@ -7,4 +7,4 @@ COPY . /app
 # Set the working directory to /app
 WORKDIR /app
 
-CMD ["python", "-u", "go-test.py"]
+CMD ["python", "-u", "my-app.py"]
