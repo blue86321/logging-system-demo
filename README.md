@@ -57,7 +57,9 @@ docker-compose down
 # Terraform (AWS OpenSearch)
 cd tf
 cp terraform.tfvars.example terraform.tfvars
-## Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
+## 1.Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
+## 2.Be aware of instance_type in `tf/modules/opensearch/variables.tf`,
+##   if you want free tier instance, use `t3.small.search` instead.
 terraform init
 terraform apply -auto-approve
 ## Only for demo, config for fluent-bit

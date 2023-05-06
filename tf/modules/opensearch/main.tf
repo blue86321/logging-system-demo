@@ -19,11 +19,6 @@ resource "aws_opensearch_domain" "opensearch" {
     instance_type          = var.instance_type
     instance_count         = 2
     zone_awareness_enabled = true
-
-    dedicated_master_enabled = true
-    dedicated_master_count   = 3
-    dedicated_master_type    = "m6g.large.search"
-
   }
 
   encrypt_at_rest {
