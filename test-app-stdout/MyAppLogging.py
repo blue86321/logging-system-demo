@@ -12,10 +12,18 @@ def log_order():
             "order_id": str(uuid.uuid4()),
             "status": 2,
             "amount": random.randint(10, 100) * 100,
-            "order_time": (datetime.datetime.now() - datetime.timedelta(minutes=random.randint(0, 19), seconds=random.randint(0, 59))).isoformat(),
+            "order_time": (
+                datetime.datetime.now()
+                - datetime.timedelta(
+                    minutes=random.randint(0, 19), seconds=random.randint(0, 59)
+                )
+            ).isoformat(),
             "pay_time": ts,
         },
-        "uid": str(random.randint(1, 50)),
+        "user": {
+            "uid": str(random.randint(1, 50)),
+            "anonymous": False,
+        },
         "time": ts,
     }
     datetime.datetime.now().date()
@@ -26,7 +34,10 @@ def log_login():
     ts = datetime.datetime.now().isoformat()
     message = {
         "log": "myapp-login",
-        "uid": str(random.randint(1, 50)),
+        "user": {
+            "uid": str(random.randint(1, 50)),
+            "anonymous": False,
+        },
         "time": ts,
         "client_type": random.choice(["web", "ios"]),
     }
