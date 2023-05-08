@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+  # otel-collector:
+  #   image: otel/opentelemetry-collector
+  #   command: [--config=/etc/otel-collector-config.yaml]
+  #   volumes:
+  #     - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+  #   networks:
+  #     - local
+  #   ports:
+  #     - "13133:13133"
+  #     - "4317:4317"  # OTLP gRPC receiver
+  #     - "4318:4318"  # OTLP http receiver
   ################################
   # Fluent-Bit
   ################################
@@ -8,7 +19,7 @@ services:
     image: fluent/fluent-bit:2.0
     volumes:
       # Because we are not using AWS_ARN, only output to stdout for testing
-      - ./fluent-bit-es.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
     # volumes:
     #   - ./fluent-bit-aws.conf:/fluent-bit/etc/fluent-bit.conf
     # environment:
@@ -22,6 +33,7 @@ services:
     ports:
       - "24224:24224"
       - "9880:9880"
+      # - "4320:4320"
   ################################
   # Jaeger-collector
   ################################
