@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: OFF
+    com:
+      example:
+        testapphttpsclient: INFO
+
+spring:
+  main:
+    log-startup-info: false
+    banner-mode: OFF
+  application:
+    name: test-app-https-client
+grpc:
+  client:
+    test-app-grpc-server:
+      address: "static://${GRPC_SERVER}"
+      negotiation-type: plaintext
+
