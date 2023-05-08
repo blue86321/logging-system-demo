@@ -10,8 +10,6 @@ services:
     ports:
       - "24224:24224"
       - "9880:9880"
-    logging:
-      driver: none
   test-app-stdout:
     container_name: test-app-stdout
     build:
