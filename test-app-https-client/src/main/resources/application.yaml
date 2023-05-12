@@ -7,16 +7,20 @@ logging:
     com:
       example:
         testapphttpsclient: INFO
+  pattern:
+    level: "trace_id=%mdc{trace_id} span_id=%mdc{span_id} trace_flags=%mdc{trace_flags} %5p"
 
 spring:
   main:
     log-startup-info: false
     banner-mode: OFF
   application:
-    name: test-app-https-client
+    name: myapp-https-client
+
 grpc:
   client:
     test-app-grpc-server:
+#      address: "static://127.0.0.1:50051"
       address: "static://${GRPC_SERVER}"
       negotiation-type: plaintext
 

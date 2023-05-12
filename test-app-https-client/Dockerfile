@@ -8,6 +8,7 @@ COPY opentelemetry-javaagent.jar opentelemetry-javaagent.jar
 ENV OTEL_SERVICE_NAME=test-app-https-client
 ENV OTEL_TRACES_EXPORTER=otlp
 ENV OTEL_METRICS_EXPORTER=none
+# ENV OTEL_LOGS_EXPORTER=otlp
 
 EXPOSE 8080
 

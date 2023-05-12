@@ -1,21 +1,33 @@
 
 # AWS OpenSearch Trace Analytics
 
-- `test-app-stdout` prints log on `docker logs`
+## Features
+- Trace for a series of API calling, including `trace-id` and `span-id`
+- Logs data will be appended with `trace-id` and `span-id`
+
+## Overview
+
 - `fluent-bit` collects logs and output to `stdout` directly
 - `test-app-https-client` is a Java Spring Boot web application.
 - `test-app-grpc-server` is a GRPC server written in Python.
 
 ## Process
-- Visiting an url to trigger `test-app-https-client` and `test-app-grpc-server` .
-- Apps trace data is instrumented by OpenTelemetry Auto-Instrumentation.
-- Trace data is then collected by Jaeger Collector, and then send to OpenSearch.
+- When visiting an url to trigger `test-app-https-client` and `test-app-grpc-server` .
+- Apps trace
+  - instrumented by OpenTelemetry auto-instrumentation
+  - collected by Jaeger Collector
+  - send to OpenSearch
+- Apps logs
+  - instrumented by OpenTelemetry auto-instrumentation, adding `trace-id`, `span-id`
+  - print to console
+  - console logging is collected by Fluent-Bit
+  - Fluent-Bit output logs on stdout (in production, should send to AWS OpenSearch)
 
 ## OpenSearch
 - Go to AWS OpenSearch, create a OpenSearch domain (instance)
   - Development mode
     - 1 AZ
-    - instance type: `t3.small.search`
+    - instance type: `t3.small.search` (free tier)
     - Number of nodes: 1
   - Network
     - Public Access
@@ -43,7 +55,7 @@ docker-compose down
 ```
 
 ## Visit
-- Trigger apps behavior, visit [http://localhost:8080/hello/test/](http://localhost:8080/hello/test/)
+- Trigger apps by visiting [http://localhost:8080/hello/test/](http://localhost:8080/hello/test/)
 - Go to AWS OpenSearch Dashboard -> left-side menu -> Observability -> Trace Analytics. You should see the trace data.
 - If you think OpenSearch Dashboard is not ideal, you can try Jaeger UI on [http://localhost:16686/](http://localhost:16686/)
 
@@ -82,10 +94,10 @@ opentelemetry-instrument \
     --traces_exporter otlp \
     --metrics_exporter none \
     --service_name my-grpc-server \
-    --exporter_otlp_endpoint 0.0.0.0:4317 \
     python my-grpc-server.py
 
 deactivate  # exit venv
 rm -r venv  # delete venv
 ```
-- Note: To successfully collect trace data, you still need to launch docker, but comment the `test-app-grpc-server` part.
+- Note1: To successfully collect trace data, you still need to launch docker, but comment the `test-app-grpc-server` part.
+- Note2: logs is not working on local machine when using Python.

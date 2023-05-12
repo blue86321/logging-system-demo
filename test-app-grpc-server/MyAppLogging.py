@@ -3,6 +3,7 @@ import json
 import random
 from typing import Any, Dict
 import uuid
+import logging
 
 
 def log_order():
@@ -32,4 +33,4 @@ def log_order():
 
 
 def log(message: Dict[str, Any]):
-    print(json.dumps(message))
+    logging.info(json.dumps(message))

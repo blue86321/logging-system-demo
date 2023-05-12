@@ -20,8 +20,6 @@ services:
     volumes:
       # Because we are not using AWS_ARN, only output to stdout for testing
       - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
-    # volumes:
-    #   - ./fluent-bit-aws.conf:/fluent-bit/etc/fluent-bit.conf
     # environment:
     #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
     #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
@@ -73,7 +71,6 @@ services:
   # Https Client (Java)
   ################################
   test-app-https-client:
-    container_name: test-app-https-client
     build:
       context: ./test-app-https-client
       dockerfile: Dockerfile
@@ -96,7 +93,6 @@ services:
   # GRPC Server (Python)
   ################################
   test-app-grpc-server:
-    container_name: test-app-grpc-server
     build:
       context: ./test-app-grpc-server
       dockerfile: Dockerfile
@@ -105,10 +101,13 @@ services:
     ports:
       - "50051:50051"
     environment:
+      # - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-collector:4317
+      # - OTEL_LOGS_OTLP_ENDPOINT=http://fluent-bit:4320
     depends_on:
       - fluent-bit
       - jaeger-collector
+      # - otel-collector
     logging:
       driver: fluentd
       options:
