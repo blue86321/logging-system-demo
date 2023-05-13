@@ -2,10 +2,10 @@
 
 ## Overview
 This demo is to show how to implement a logging system.
-- **Demo1**: Fluent Bit simply collect loggings and output to stdout
-- **Demo2**: Fluent Bit collect loggings and output to Elasticsearch and Kibana
-- **Demo3**: Fluent Bit collect loggings and output to AWS OpenSearch
-- **Trace Analytics**: traces demo and append `trace-id` and `span-id` to loggings.
+- **Demo1**: Fluent Bit simply collect loggings and output to **stdout**
+- **Demo2**: Fluent Bit collect loggings and output to **Elasticsearch and Kibana**
+- **Demo3**: Fluent Bit collect loggings and output to **AWS OpenSearch**
+- **Trace Analytics**: traces demo and append `trace-id` and `span-id` to loggings by **OpenTelemetry**.
 
 ## Demo1 (stdout)
 - `test-app-stdout` prints log on `docker logs`
@@ -73,6 +73,8 @@ cd tf
 cp terraform.tfvars.example terraform.tfvars
 ## 1.Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
 terraform init
+## If there is an error related to service_linked_role, 
+## just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
 terraform apply -auto-approve
 ## Only for demo, config for fluent-bit
 terraform output > tf_output.log
@@ -91,7 +93,7 @@ cd tf
 terraform destroy -auto-approve
 ```
 
-### Manual work to enter dashboard
+### Manual work for the dashboard
 #### Cognito User Pool
 1. Go to AWS `Cognito` -> `User pools` -> `Create User`
 2. Put the user into `master-group`

@@ -23,7 +23,11 @@ This demo is to use OpenTelemetry for trace analytics.
   - instrumented by OpenTelemetry auto-instrumentation, adding `trace-id`, `span-id`
   - print to console
   - console logging is collected by Fluent-Bit
-  - Fluent-Bit output logs on stdout (in production, should send to AWS OpenSearch)
+  - Fluent-Bit output logs on stdout
+
+**Note**: Fluent-Bit outputs to stdout is because `Jaeger` can only access elasticsearch with username/password,
+so we create our OpenSearch with username/password which is not supported by Fluent-Bit as far as we tried.
+In production, we should use `master_arn` to create AWS OpenSearch, and host `Jaeger` on AWS EC2 so that it has the permission to access OpenSearch.
 
 <img src="../imgs/TraceAnalyticsDemoOverview.jpg" width="700"/>
 
@@ -35,7 +39,8 @@ cd tf
 cp terraform.tfvars.example terraform.tfvars
 ## 1.Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
 terraform init
-## If there is an error related to service_linked_role, just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
+## If there is an error related to service_linked_role,
+## just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
 terraform apply -auto-approve
 ## Only for demo, config for Jaeger
 terraform output > tf_output.log
