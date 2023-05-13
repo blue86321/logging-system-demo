@@ -1,6 +1,6 @@
 region      = "us-west-1"
 access_key  = ""
 secret_key  = ""
-domain_name = "mytraceapp"
+domain_name = "mytrace"
 master_user_name = "admin"
 master_password = "Admin_123"
