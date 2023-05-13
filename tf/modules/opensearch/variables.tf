@@ -11,6 +11,5 @@ variable "domain_name" {
 variable "instance_type" {
   description = "OpenSearch instance type"
   type = string
-  # default = "t3.small.search"   # free tier
-  default = "c6g.large.search"  # min for production
+  default = "t3.small.search"   # free tier
 }

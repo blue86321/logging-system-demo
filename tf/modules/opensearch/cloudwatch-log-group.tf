@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "es_search_slow_policy_doc" {
       "logs:PutLogEvents",
       "logs:PutLogEventsBatch",
     ]
-    resources = [aws_cloudwatch_log_group.search_slow.arn]
+    resources = ["arn:aws:logs:*"]
   }
 }
 
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "es_index_solw_policy_doc" {
       "logs:PutLogEvents",
       "logs:PutLogEventsBatch",
     ]
-    resources = [aws_cloudwatch_log_group.index_solw.arn]
+    resources = ["arn:aws:logs:*"]
   }
 }
 
@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "es_error_policy_doc" {
       "logs:PutLogEvents",
       "logs:PutLogEventsBatch",
     ]
-    resources = [aws_cloudwatch_log_group.error.arn]
+    resources = ["arn:aws:logs:*"]
   }
 }
 

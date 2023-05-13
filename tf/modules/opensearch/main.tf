@@ -33,10 +33,10 @@ resource "aws_opensearch_domain" "opensearch" {
     volume_type = "gp3"
   }
 
-  auto_tune_options {
-    desired_state       = "ENABLED"
-    rollback_on_disable = "NO_ROLLBACK"
-  }
+  # auto_tune_options {
+  #   desired_state       = "ENABLED"
+  #   rollback_on_disable = "NO_ROLLBACK"
+  # }
 
   node_to_node_encryption {
     enabled = true
