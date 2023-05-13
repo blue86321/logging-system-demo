@@ -1,15 +1,17 @@
 
-# AWS OpenSearch Trace Analytics
-
-## Features
-- Trace for a series of API calling, including `trace-id` and `span-id`
-- Logs data will be appended with `trace-id` and `span-id`
+# AWS OpenSearch Trace Analytics Demo
 
 ## Overview
+This demo is to use OpenTelemetry for trace analytics.
+- Features
+  - **Trace** for a series of API calling, including `trace-id` and `span-id`
+  - **Logs** data will be appended with `trace-id` and `span-id`
 
-- `fluent-bit` collects logs and output to `stdout` directly
-- `test-app-https-client` is a Java Spring Boot web application.
-- `test-app-grpc-server` is a GRPC server written in Python.
+- Primary components:
+  - `fluent-bit` collects logs and output to `stdout` directly
+  - `test-app-https-client` is a Java Spring Boot web application.
+  - `test-app-grpc-server` is a GRPC server written in Python.
+  - `tf` is a terraform module to create a AWS OpenSearch resource
 
 ## Process
 - When visiting an url to trigger `test-app-https-client` and `test-app-grpc-server` .
@@ -23,40 +25,42 @@
   - console logging is collected by Fluent-Bit
   - Fluent-Bit output logs on stdout (in production, should send to AWS OpenSearch)
 
-## OpenSearch
-- Go to AWS OpenSearch, create a OpenSearch domain (instance)
-  - Development mode
-    - 1 AZ
-    - instance type: `t3.small.search` (free tier)
-    - Number of nodes: 1
-  - Network
-    - Public Access
-  - Fine-grained access control
-    - Create master user
-      - username: `admin`
-      - password: `Admin_123`
-  - Access policy
-    - Configure domain level access policy
-      - `IAM ARN`
-      - `*`
-      - `Allow`
-- When new instance is ready (about 20 min), copy the `Domain endpoint`
-
+<img src="../imgs/TraceAnalyticsDemoOverview.jpg" width="700"/>
 
 ## Docker
-- Configure `ES_SERVER_URLS` in `docker-compose-aws-trace.yaml` with `Domain endpoint`
-- Start docker
 
 ```shell
+# Terraform (AWS OpenSearch)
+cd tf
+cp terraform.tfvars.example terraform.tfvars
+## 1.Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
+terraform init
+## If there is an error related to service_linked_role, just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
+terraform apply -auto-approve
+## Only for demo, config for Jaeger
+terraform output > tf_output.log
+cd ..
+
 # Deploy container (Ctrl-C to exit)
-docker-compose -f docker-compose-aws-trace.yaml up
+docker compose --env-file ./tf/tf_output.log up
 # Delete all container
-docker-compose down
+docker compose down
+# Delete AWS resources
+cd tf
+terraform destroy -auto-approve
 ```
 
 ## Visit
-- Trigger apps by visiting [http://localhost:8080/hello/test/](http://localhost:8080/hello/test/)
-- Go to AWS OpenSearch Dashboard -> left-side menu -> Observability -> Trace Analytics. You should see the trace data.
+- Trigger apps by visiting [http://localhost:8080/hello/test](http://localhost:8080/hello/test)
+- Go to AWS OpenSearch Dashboard
+  - URL
+    - `cat ./tf/tf_output.log`
+    - check `AWS_OPENSEARCH_HOST` value
+  - Login
+    - username: admin
+    - password: Admin_123
+  - Trace Analytics
+    - left-side menu -> Observability -> Trace Analytics. You should see the trace data.
 - If you think OpenSearch Dashboard is not ideal, you can try Jaeger UI on [http://localhost:16686/](http://localhost:16686/)
 
 
@@ -97,7 +101,6 @@ opentelemetry-instrument \
     python my-grpc-server.py
 
 deactivate  # exit venv
-rm -r venv  # delete venv
 ```
 - Note1: To successfully collect trace data, you still need to launch docker, but comment the `test-app-grpc-server` part.
-- Note2: logs is not working on local machine when using Python.
+- **Note2: logs is not working on local machine when using Python.**

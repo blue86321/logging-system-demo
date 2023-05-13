@@ -1,17 +1,6 @@
 version: "3.8"
 
 services:
-  # otel-collector:
-  #   image: otel/opentelemetry-collector
-  #   command: [--config=/etc/otel-collector-config.yaml]
-  #   volumes:
-  #     - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-  #   networks:
-  #     - local
-  #   ports:
-  #     - "13133:13133"
-  #     - "4317:4317"  # OTLP gRPC receiver
-  #     - "4318:4318"  # OTLP http receiver
   ################################
   # Fluent-Bit
   ################################
@@ -20,18 +9,11 @@ services:
     volumes:
       # Because we are not using AWS_ARN, only output to stdout for testing
       - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
-    # environment:
-    #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-    #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    #   - AWS_OPENSEARCH_HOST=${AWS_OPENSEARCH_HOST}
-    #   - AWS_REGION=${AWS_REGION}
-    #   - AWS_OPENSEARCH_ROLE_ARN=${AWS_OPENSEARCH_ROLE_ARN}
     networks:
       - local
     ports:
       - "24224:24224"
       - "9880:9880"
-      # - "4320:4320"
   ################################
   # Jaeger-collector
   ################################
@@ -45,10 +27,10 @@ services:
       - "4318:4318"
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
-      - ES_SERVER_URLS=https://search-os-console-3w3gqo37csrikr37c3mdwd4g2y.us-west-1.es.amazonaws.com
+      - ES_SERVER_URLS=https://${AWS_OPENSEARCH_HOST}
     command:
-      - --es.username=admin
-      - --es.password=Admin_123
+      - --es.username=${AWS_OPENSEARCH_MASTER_USER_NAME}
+      - --es.password=${AWS_OPENSEARCH_MASTER_PASSWORD}
       - --collector.otlp.enabled=true
   ################################
   # Jaeger UI (Optional)
@@ -63,10 +45,10 @@ services:
       - "16687:16687"
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
-      - ES_SERVER_URLS=https://search-os-console-3w3gqo37csrikr37c3mdwd4g2y.us-west-1.es.amazonaws.com
+      - ES_SERVER_URLS=https://${AWS_OPENSEARCH_HOST}
     command:
-      - --es.username=admin
-      - --es.password=Admin_123
+      - --es.username=${AWS_OPENSEARCH_MASTER_USER_NAME}
+      - --es.password=${AWS_OPENSEARCH_MASTER_PASSWORD}
   ################################
   # Https Client (Java)
   ################################
@@ -101,13 +83,10 @@ services:
     ports:
       - "50051:50051"
     environment:
-      # - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-collector:4317
-      # - OTEL_LOGS_OTLP_ENDPOINT=http://fluent-bit:4320
     depends_on:
       - fluent-bit
       - jaeger-collector
-      # - otel-collector
     logging:
       driver: fluentd
       options:
