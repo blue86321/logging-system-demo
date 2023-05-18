@@ -54,21 +54,9 @@ resource "aws_opensearch_domain" "opensearch" {
     role_arn         = aws_iam_role.cognito_es_role.arn
   }
 
-  access_policies = <<EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": "*"
-        },
-        "Action": "es:*",
-        "Resource": "arn:aws:es:${var.region}:${data.aws_caller_identity.current.account_id}:domain/${var.domain_name}/*"
-      }
-    ]
-  }
-  EOF
+  # configure with `aws_opensearch_domain_policy` to avoid regex pattern error
+  # source: https://github.com/hashicorp/terraform-provider-aws/issues/26433#issuecomment-1464612165
+  access_policies = null
 
   log_publishing_options {
     cloudwatch_log_group_arn = aws_cloudwatch_log_group.search_slow.arn
@@ -87,4 +75,22 @@ resource "aws_opensearch_domain" "opensearch" {
   }
 
   depends_on = [aws_iam_service_linked_role.es]
+}
+
+data "aws_iam_policy_document" "es_access_policy" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["es:*"]
+    resources = ["arn:aws:es:${var.region}:${data.aws_caller_identity.current.arn}:domain/${var.domain_name}/*"]
+  }
+}
+
+resource "aws_opensearch_domain_policy" "main" {
+  domain_name = var.domain_name
+  access_policies = data.aws_iam_policy_document.es_access_policy.json
 }

@@ -68,4 +68,9 @@ resource "aws_cognito_identity_pool_roles_attachment" "roles_attachment" {
     "authenticated"   = aws_iam_role.auth_master.arn,
     "unauthenticated" = aws_iam_role.unauth.arn,
   }
+
+  # Need to manually config, so ignore changes; otherwise, there is a dependency cycle
+  lifecycle {
+    ignore_changes = [role_mapping]
+  }
 }
