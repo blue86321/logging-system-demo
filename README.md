@@ -2,10 +2,11 @@
 
 ## Overview
 This demo is to show how to implement a logging system.
-- **Demo1**: Fluent Bit simply collect loggings and output to **stdout**
-- **Demo2**: Fluent Bit collect loggings and output to **Elasticsearch and Kibana**
-- **Demo3**: Fluent Bit collect loggings and output to **AWS OpenSearch**
+- **Demo1**: Fluent Bit simply collects loggings and output to **stdout**
+- **Demo2**: Fluent Bit collects loggings and output to **Elasticsearch and Kibana**
+- **Demo3**: Fluent Bit collects loggings and output to **AWS OpenSearch**
 - **Trace Analytics**: traces demo and append `trace-id` and `span-id` to loggings by **OpenTelemetry**.
+- **Frontend Logging**: Demo showing the logging process **Frontend -> Nginx -> Fluent Bit**
 
 ## Demo1 (stdout)
 - `test-app-stdout` prints log on `docker logs`
@@ -130,3 +131,6 @@ terraform destroy -auto-approve
 
 ## Trace Analytics
 See [trace-analytics](./trace-analytics/)
+
+## Frontend Logging
+See [frontend-logging](./frontend-logging/)
