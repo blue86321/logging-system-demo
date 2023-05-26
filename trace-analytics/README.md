@@ -31,8 +31,9 @@ In production, we should use `master_arn` to create AWS OpenSearch, and host `Ja
 
 <img src="../imgs/TraceAnalyticsDemoOverview.jpg" width="700"/>
 
-## Docker
+## Run
 
+### Terraform
 ```shell
 # Terraform (AWS OpenSearch)
 cd tf
@@ -41,39 +42,53 @@ cp terraform.tfvars.example terraform.tfvars
 terraform init
 ## If there is an error related to service_linked_role,
 ## just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
+## Note: It takes about 20-30 minutes to complete
 terraform apply -auto-approve
 ## Only for demo, config for Jaeger
 terraform output > tf_output.log
 cd ..
-
-# Deploy container (Ctrl-C to exit)
-docker compose --env-file ./tf/tf_output.log up
-# Delete all container
-docker compose down
-# Delete AWS resources
-cd tf
-terraform destroy -auto-approve
 ```
 
-## Visit
+### Docker
+```shell
+# Deploy container (Ctrl-C to exit)
+docker compose --env-file ./tf/tf_output.log up
+```
+
+### Visit and Result
 - Trigger apps by visiting [http://localhost:8080/hello/test](http://localhost:8080/hello/test)
 - Go to AWS OpenSearch Dashboard
   - URL
     - `cat ./tf/tf_output.log`
-    - check `AWS_OPENSEARCH_HOST` value
+    - check `AWS_OPENSEARCH_DASHBOARD` value
   - Login
-    - username: admin
-    - password: Admin_123
+    - `username`: admin
+    - `password`: Admin_123
   - Trace Analytics
-    - left-side menu -> Observability -> Trace Analytics. You should see the trace data.
+    - left-side menu -> `Observability` -> `Trace Analytics` -> `Traces`. You should see the trace data.
 - If you think OpenSearch Dashboard is not ideal, you can try Jaeger UI on [http://localhost:16686/](http://localhost:16686/)
 
+#### OpenSearch
+<img src="../imgs/TraceAnalyticsDemoResultOpenSearch.jpg" width="700"/>
 
-## Run Apps on Local Machine
+#### Jaeger
+<img src="../imgs/TraceAnalyticsDemoResultJaeger.jpg" width="700"/>
+
+### Destroy
+```shell
+# Delete all container
+docker compose down
+# Delete AWS resources
+## Note: It takes about 20-30 minutes to complete
+cd tf
+terraform destroy -auto-approve
+```
+
+## Run on Local Machine
 - In previous section, apps is running on docker.
 - If you want to run on your local machine instead of docker, or you want to custom code and run it on docker again, please follow the instructions below.
 
-### Run Java HTTP Client on Local Machine
+### Java HTTP Client
 ```shell
 cd test-app-https-client
 # Only for grpc protos
@@ -91,7 +106,7 @@ java \
 ```
 - Note: To successfully collect trace data, you still need to launch docker, but comment the `test-app-https-client` part.
 
-### Run Python GRPC Server on Local Machine
+### Python GRPC Server
 ```shell
 cd test-app-grpc-server
 python -m venv venv
