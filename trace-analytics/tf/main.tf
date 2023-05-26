@@ -65,11 +65,11 @@ data "aws_iam_policy_document" "es_access_policy" {
       identifiers = ["*"]
     }
     actions   = ["es:*"]
-    resources = ["arn:aws:es:${var.region}:${data.aws_caller_identity.current.arn}:domain/${var.domain_name}/*"]
+    resources = ["arn:aws:es:${var.region}:${data.aws_caller_identity.current.id}:domain/${var.domain_name}/*"]
   }
 }
 
 resource "aws_opensearch_domain_policy" "main" {
-  domain_name = var.domain_name
+  domain_name = aws_opensearch_domain.opensearch.domain_name
   access_policies = data.aws_iam_policy_document.es_access_policy.json
 }

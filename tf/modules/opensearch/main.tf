@@ -91,6 +91,6 @@ data "aws_iam_policy_document" "es_access_policy" {
 }
 
 resource "aws_opensearch_domain_policy" "main" {
-  domain_name = var.domain_name
+  domain_name = aws_opensearch_domain.opensearch.domain_name
   access_policies = data.aws_iam_policy_document.es_access_policy.json
 }
