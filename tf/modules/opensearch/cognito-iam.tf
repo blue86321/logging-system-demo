@@ -76,6 +76,10 @@ data "aws_iam_policy_document" "auth_master_assume" {
     }
   }
 
+  # AssumeRole for current account
+  # Note: FluentBit uses AWS credential and then assume roles by given AWS_Role_ARN.
+  #       Feel free to configure as needed.
+  #       Source: https://github.com/fluent/fluent-bit-docs/blob/master/administration/aws-credentials.md
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
