@@ -85,7 +85,7 @@ data "aws_iam_policy_document" "auth_master_assume" {
     actions = ["sts:AssumeRole"]
     principals {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.current.account_id]
+      identifiers = [data.aws_caller_identity.current.arn]
     }
   }
 }

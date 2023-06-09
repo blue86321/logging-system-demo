@@ -91,6 +91,17 @@ data "aws_iam_policy_document" "es_access_policy" {
 }
 
 resource "aws_opensearch_domain_policy" "main" {
-  domain_name = aws_opensearch_domain.opensearch.domain_name
+  domain_name     = aws_opensearch_domain.opensearch.domain_name
   access_policies = data.aws_iam_policy_document.es_access_policy.json
+
+  # Setup identity pool permission via provisioner
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-COMMAND
+      aws cognito-identity set-identity-pool-roles \
+        --identity-pool-id ${aws_cognito_identity_pool.identity_pool.id} \
+        --roles authenticated=${aws_iam_role.auth_master.arn},unauthenticated=${aws_iam_role.unauth.arn} \
+        --role-mappings '{"cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.user_pool.id}:${aws_cognito_managed_user_pool_client.this.id}":{"Type": "Token", "AmbiguousRoleResolution": "Deny"}}'
+    COMMAND
+  }
 }

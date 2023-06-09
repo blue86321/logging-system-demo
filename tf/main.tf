@@ -9,4 +9,7 @@ module "opensearch" {
 
   domain_name = var.domain_name
   region      = var.region
+  cognito_master_user_list = [{
+    username = var.cognito_master_email
+  }]
 }
