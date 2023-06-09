@@ -56,6 +56,11 @@ resource "aws_cognito_identity_pool" "identity_pool" {
   allow_unauthenticated_identities = false
 
   # AWS OpenSearch will maintain `cognito_identity_providers`, so ignore it
+  # This part needs to wait until OpenSearch is created to proceed, so we cannot config here due to dependency
+  # To be more specific, we need `aws_cognito_user_pool_client` id.
+  # However, `aws_cognito_user_pool_client` need to set `callback_urls`, which is our OpenSearch dashboard endpoint.
+  # The workaround is to use scripts or AWS CLI after terraform.
+  # Source: https://github.com/hashicorp/terraform-provider-aws/issues/5557
   lifecycle {
     ignore_changes = [cognito_identity_providers]
   }
@@ -69,7 +74,8 @@ resource "aws_cognito_identity_pool_roles_attachment" "roles_attachment" {
     "unauthenticated" = aws_iam_role.unauth.arn,
   }
 
-  # Need to manually config, so ignore changes; otherwise, there is a dependency cycle
+  # Need to further configure manually
+  # Since the dependency of `cognito_identity_providers`, we cannot configure here.
   lifecycle {
     ignore_changes = [role_mapping]
   }
