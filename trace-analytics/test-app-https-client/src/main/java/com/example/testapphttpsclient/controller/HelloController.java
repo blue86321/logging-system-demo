@@ -44,7 +44,7 @@ public class HelloController {
     }
 
     static class OrderLog {
-        String log = "myapp-order-java";
+        String log_name = "myapp-order-java";
         Order order;
         User user;
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", timezone = "UTC")

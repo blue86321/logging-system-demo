@@ -9,7 +9,7 @@ import logging
 def log_order():
     ts = datetime.datetime.now().isoformat()
     message = {
-        "log": "myapp-order-grpc",
+        "log_name": "myapp-order-grpc",
         "order": {
             "order_id": str(uuid.uuid4()),
             "status": 2,

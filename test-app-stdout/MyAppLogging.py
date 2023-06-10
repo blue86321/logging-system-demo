@@ -7,7 +7,7 @@ import uuid
 def log_order():
     ts = datetime.datetime.now().isoformat()
     message = {
-        "log": "myapp-order",
+        "log_name": "myapp-order",
         "order": {
             "order_id": str(uuid.uuid4()),
             "status": 2,
@@ -33,7 +33,7 @@ def log_order():
 def log_login():
     ts = datetime.datetime.now().isoformat()
     message = {
-        "log": "myapp-login",
+        "log_name": "myapp-login",
         "user": {
             "uid": str(random.randint(1, 50)),
             "anonymous": False,
