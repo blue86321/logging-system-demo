@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "auth_master_assume" {
     condition {
       test     = "StringEquals"
       variable = "cognito-identity.amazonaws.com:aud"
-      values   = [aws_cognito_identity_pool.identity_pool.id]
+      values   = [aws_cognito_identity_pool.this.id]
     }
   }
 
@@ -126,7 +126,7 @@ data "aws_iam_policy_document" "auth_limited_assume" {
     condition {
       test     = "StringEquals"
       variable = "cognito-identity.amazonaws.com:aud"
-      values   = [aws_cognito_identity_pool.identity_pool.id]
+      values   = [aws_cognito_identity_pool.this.id]
     }
   }
 }
@@ -162,7 +162,7 @@ data "aws_iam_policy_document" "unauth_assume" {
     condition {
       test     = "StringEquals"
       variable = "cognito-identity.amazonaws.com:aud"
-      values   = [aws_cognito_identity_pool.identity_pool.id]
+      values   = [aws_cognito_identity_pool.this.id]
     }
   }
 }

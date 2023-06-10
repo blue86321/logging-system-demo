@@ -1,5 +1,5 @@
 output "opensearch_endpoint" {
-  value = aws_opensearch_domain.opensearch.endpoint
+  value = aws_opensearch_domain.this.endpoint
 }
 
 output "opensearch_master_role_arn" {

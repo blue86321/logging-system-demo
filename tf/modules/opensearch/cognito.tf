@@ -1,6 +1,6 @@
 
 # User pool
-resource "aws_cognito_user_pool" "user_pool" {
+resource "aws_cognito_user_pool" "this" {
   name = "${var.domain_name}-user-pool"
 
   admin_create_user_config {
@@ -32,14 +32,14 @@ resource "aws_cognito_user_pool" "user_pool" {
   }
 }
 
-resource "aws_cognito_user_pool_domain" "user_pool_domain" {
+resource "aws_cognito_user_pool_domain" "this" {
   domain       = var.domain_name
-  user_pool_id = aws_cognito_user_pool.user_pool.id
+  user_pool_id = aws_cognito_user_pool.this.id
 }
 
 resource "aws_cognito_managed_user_pool_client" "this" {
   name_prefix  = "AmazonOpenSearchService-${var.domain_name}"
-  user_pool_id = aws_cognito_user_pool.user_pool.id
+  user_pool_id = aws_cognito_user_pool.this.id
 
   lifecycle {
     ignore_changes = [
@@ -53,25 +53,25 @@ resource "aws_cognito_managed_user_pool_client" "this" {
   }
 
   depends_on = [
-    aws_opensearch_domain.opensearch
+    aws_opensearch_domain.this
   ]
 }
 
 # User group
 resource "aws_cognito_user_group" "master" {
   name         = "master-group"
-  user_pool_id = aws_cognito_user_pool.user_pool.id
+  user_pool_id = aws_cognito_user_pool.this.id
   role_arn     = aws_iam_role.auth_master.arn
 }
 resource "aws_cognito_user_group" "limited" {
   name         = "limited-group"
-  user_pool_id = aws_cognito_user_pool.user_pool.id
+  user_pool_id = aws_cognito_user_pool.this.id
   role_arn     = aws_iam_role.auth_limited.arn
 }
 
 
 # Identity pool
-resource "aws_cognito_identity_pool" "identity_pool" {
+resource "aws_cognito_identity_pool" "this" {
   identity_pool_name               = "${var.domain_name}-identity-pool"
   allow_unauthenticated_identities = false
 
@@ -86,8 +86,8 @@ resource "aws_cognito_identity_pool" "identity_pool" {
   }
 }
 
-resource "aws_cognito_identity_pool_roles_attachment" "roles_attachment" {
-  identity_pool_id = aws_cognito_identity_pool.identity_pool.id
+resource "aws_cognito_identity_pool_roles_attachment" "this" {
+  identity_pool_id = aws_cognito_identity_pool.this.id
 
   roles = {
     "authenticated"   = aws_iam_role.auth_master.arn,
@@ -110,7 +110,7 @@ resource "aws_cognito_user" "master" {
     # key => value
     user.username => user
   }
-  user_pool_id             = aws_cognito_user_pool.user_pool.id
+  user_pool_id             = aws_cognito_user_pool.this.id
   desired_delivery_mediums = ["EMAIL"]
   username                 = each.key
   attributes = {
@@ -127,7 +127,7 @@ resource "aws_cognito_user" "limited" {
     # key => value
     user.username => user
   }
-  user_pool_id             = aws_cognito_user_pool.user_pool.id
+  user_pool_id             = aws_cognito_user_pool.this.id
   desired_delivery_mediums = ["EMAIL"]
   username                 = each.key
   attributes = {
@@ -147,7 +147,7 @@ resource "aws_cognito_user_in_group" "master" {
     # key => value
     user.username => user
   }
-  user_pool_id = aws_cognito_user_pool.user_pool.id
+  user_pool_id = aws_cognito_user_pool.this.id
   group_name   = aws_cognito_user_group.master.name
   username     = each.key
 }
@@ -158,7 +158,7 @@ resource "aws_cognito_user_in_group" "limited" {
     # key => value
     user.username => user
   }
-  user_pool_id = aws_cognito_user_pool.user_pool.id
+  user_pool_id = aws_cognito_user_pool.this.id
   group_name   = aws_cognito_user_group.master.name
   username     = each.key
 }

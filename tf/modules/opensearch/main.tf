@@ -4,7 +4,7 @@ resource "aws_iam_service_linked_role" "es" {
   aws_service_name = "opensearchservice.amazonaws.com"
 }
 
-resource "aws_opensearch_domain" "opensearch" {
+resource "aws_opensearch_domain" "this" {
   domain_name    = var.domain_name
   engine_version = "OpenSearch_2.5"
 
@@ -49,8 +49,8 @@ resource "aws_opensearch_domain" "opensearch" {
 
   cognito_options {
     enabled          = true
-    user_pool_id     = aws_cognito_user_pool.user_pool.id
-    identity_pool_id = aws_cognito_identity_pool.identity_pool.id
+    user_pool_id     = aws_cognito_user_pool.this.id
+    identity_pool_id = aws_cognito_identity_pool.this.id
     role_arn         = aws_iam_role.cognito_es_role.arn
   }
 
@@ -90,8 +90,8 @@ data "aws_iam_policy_document" "es_access_policy" {
   }
 }
 
-resource "aws_opensearch_domain_policy" "main" {
-  domain_name     = aws_opensearch_domain.opensearch.domain_name
+resource "aws_opensearch_domain_policy" "this" {
+  domain_name     = aws_opensearch_domain.this.domain_name
   access_policies = data.aws_iam_policy_document.es_access_policy.json
 
   # Setup identity pool permission via provisioner
@@ -99,9 +99,9 @@ resource "aws_opensearch_domain_policy" "main" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<-COMMAND
       aws cognito-identity set-identity-pool-roles \
-        --identity-pool-id ${aws_cognito_identity_pool.identity_pool.id} \
+        --identity-pool-id ${aws_cognito_identity_pool.this.id} \
         --roles authenticated=${aws_iam_role.auth_master.arn},unauthenticated=${aws_iam_role.unauth.arn} \
-        --role-mappings '{"cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.user_pool.id}:${aws_cognito_managed_user_pool_client.this.id}":{"Type": "Token", "AmbiguousRoleResolution": "Deny"}}'
+        --role-mappings '{"cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.this.id}:${aws_cognito_managed_user_pool_client.this.id}":{"Type": "Token", "AmbiguousRoleResolution": "Deny"}}'
     COMMAND
   }
 }

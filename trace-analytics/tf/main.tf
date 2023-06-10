@@ -10,7 +10,7 @@ resource "aws_iam_service_linked_role" "es" {
   aws_service_name = "opensearchservice.amazonaws.com"
 }
 
-resource "aws_opensearch_domain" "opensearch" {
+resource "aws_opensearch_domain" "this" {
   domain_name    = var.domain_name
   engine_version = "OpenSearch_2.5"
 
@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "es_access_policy" {
   }
 }
 
-resource "aws_opensearch_domain_policy" "main" {
-  domain_name = aws_opensearch_domain.opensearch.domain_name
+resource "aws_opensearch_domain_policy" "this" {
+  domain_name = aws_opensearch_domain.this.domain_name
   access_policies = data.aws_iam_policy_document.es_access_policy.json
 }
