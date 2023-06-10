@@ -14,20 +14,23 @@ This demo is to show how to implement a logging system.
 
 <img src="./imgs/StdoutDemoOverview.jpg" width="500"/>
 
-
+### Run on Docker
 ```sh
 # Deploy container (Ctrl-C to exit)
 docker compose up
 
 # Test for frontend log
-curl -d '{"log": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
-
-# Delete all container
-docker compose down
+curl -d '{"log_name": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
 ```
 
+### Result
 <img src="./imgs/StdoutDemoResult.jpg" width="700"/>
 
+### Destroy
+```sh
+# Delete all containers and relevant images
+docker compose down --rmi all
+```
 
 ## Demo2 (elasticsearch)
 - `test-app-stdout` prints log on `docker logs`
@@ -35,15 +38,14 @@ docker compose down
 
 <img src="./imgs/ElasticsearchDemoOverview.jpg" width="700"/>
 
+### Run on Docker
+
 ```sh
 # Deploy container (Ctrl-C to exit)
 docker compose -f docker-compose-es.yaml up
 
 # Test for frontend log
-curl -d '{"log": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
-
-# Delete all container
-docker compose down
+curl -d '{"log_name": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
 ```
 
 ### Create Index Patterns
@@ -85,6 +87,12 @@ curl -X POST "localhost:5601/api/index_patterns/index_pattern" -H 'kbn-xsrf: tru
 <img src="./imgs/ElasticsearchDemoResult.jpg" width="700"/>
 
 
+### Destroy
+```sh
+# Delete all containers and relevant images
+docker compose -f docker-compose-es.yaml down --rmi all
+```
+
 
 ## Demo 3 (AWS OpenSearch)
 - `test-app-stdout` prints log on `docker logs`
@@ -93,17 +101,29 @@ curl -X POST "localhost:5601/api/index_patterns/index_pattern" -H 'kbn-xsrf: tru
 <img src="./imgs/OpenSearchDemoOverview.jpg" width="700"/>
 
 ### Terraform
+
+#### Init
 ```sh
 # Terraform (AWS OpenSearch)
 cd tf
 cp terraform.tfvars.example terraform.tfvars
-## 1.Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
 terraform init
-## If there is an error related to service_linked_role, 
-## just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
-## Note: It takes about 20-30 minutes to complete
+```
+
+#### Apply
+
+- Manually configure `terraform.tfvars`:
+  - AWS `access_key`
+  - AWS `secret_key`
+  - `cognito_master_email`: As a default master user of OpenSearch.
+    - **You will receive password via email.**
+    - Use email and password to login `OpenSearch Dashboard` when instance is ready.
+
+```sh
+# If there is an error related to service_linked_role, just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
+# Note: It takes about 30 minutes to complete
 terraform apply -auto-approve
-## Only for demo, config for fluent-bit
+# Config for fluent-bit (only for demo)
 terraform output > tf_output.log
 cd ..
 ```
@@ -119,34 +139,25 @@ cd ..
 docker compose -f docker-compose-aws.yaml --env-file ./tf/tf_output.log up
 
 # Test for frontend log
-curl -d '{"log": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
+curl -d '{"log_name": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
 ```
 
 ### Manual work for the dashboard
-#### Cognito User Pool
-1. Go to AWS `Cognito` -> `User pools` -> `Create User`
-2. Put the user into `master-group`
-
-#### Cognito Identity Pool
-- permission config, so that new user cannot access OpenSearch Dashboard
-1. Go to AWS `Cognito` -> `Federated identities`
-1. `myapp-identity-pool`
-2. `Edit identity pool`
-3. `Authentication providers`
-   1. `Authenticated role selection`
-   2. `Choose role from token`
-   3. `DENY`
-   4. `Save changes`
 
 #### OpenSearch Dashboard
-1. Go to AWS `OpenSearch` -> `myapp` -> `OpenSearch Dashboards URL`
-2. Use new user email password to login
+1. Go to AWS OpenSearch Dashboard
+   - URL
+     - `cat ./tf/tf_output.log`
+     - check `AWS_OPENSEARCH_DASHBOARD` value
+   - AWS Console
+     - AWS `OpenSearch` -> `myapp` -> `OpenSearch Dashboards URL`
+2. Login with email and password (received from email)
 3. `Create Index Pattern` (left-side menu -> `Stack Management` -> `Index Patterns`)
    - `myapp-login-*` (timeField: `@timestamp`)
    - `myapp-order-*` (timeField: `@timestamp`)
    - `myapp-click-*` (timeField: `@timestamp`)
 4. Go to `Discover` to view the results.
-5. Permission config
+5. (Optional) Permission config for `limited_user`
    - left side menu `Security`
    - `Explore existing roles`
    - search `opensearch_dashboards_user` and `readall`
@@ -154,7 +165,7 @@ curl -d '{"log": "myapp-click","click_text": "action.goBack","uid": "1", "time":
    - In backend roles, enter arn of `myapp-cognito-auth-limited-role`. e.g. `arn:aws:iam::123456789:role/myapp-cognito-auth-limited-role`
    - Click `Map`
 
-- After setting up Permission config, new user **without** a group has no permissions to enter the dashboard.
+- After setting up permission config, new cognito user **without** a user group has no permissions to enter the dashboard.
 
 #### Discover Data
 
@@ -162,10 +173,10 @@ curl -d '{"log": "myapp-click","click_text": "action.goBack","uid": "1", "time":
 
 ### Destroy
 ```sh
-# Delete all container
-docker compose down
+# Delete all containers and relevant images
+docker compose -f docker-compose-aws.yaml --env-file ./tf/tf_output.log down --rmi all
 # Delete AWS resources
-## Note: It takes about 20-30 minutes to complete
+## Note: It takes about 30 minutes to complete
 cd tf
 terraform destroy -auto-approve
 ```

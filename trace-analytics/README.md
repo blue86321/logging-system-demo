@@ -34,17 +34,25 @@ In production, we should use `master_arn` to create AWS OpenSearch, and host `Ja
 ## Run
 
 ### Terraform
-```shell
+#### Init
+```sh
 # Terraform (AWS OpenSearch)
 cd tf
 cp terraform.tfvars.example terraform.tfvars
-## 1.Manually configure `terraform.tfvars` AWS `access_key` and `secret_key`
 terraform init
-## If there is an error related to service_linked_role,
-## just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
-## Note: It takes about 20-30 minutes to complete
+```
+
+#### Apply
+
+- Manually configure `terraform.tfvars`:
+  - AWS `access_key`
+  - AWS `secret_key`
+
+```sh
+# If there is an error related to service_linked_role, just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
+# Note: It takes about 30 minutes to complete
 terraform apply -auto-approve
-## Only for demo, config for Jaeger
+# Config for fluent-bit (only for demo)
 terraform output > tf_output.log
 cd ..
 ```
@@ -76,16 +84,16 @@ docker compose --env-file ./tf/tf_output.log up
 
 ### Destroy
 ```shell
-# Delete all container
-docker compose down
+# Delete all container and relevant images
+docker compose --env-file ./tf/tf_output.log down --rmi all
 # Delete AWS resources
-## Note: It takes about 20-30 minutes to complete
+## Note: It takes about 30 minutes to complete
 cd tf
 terraform destroy -auto-approve
 ```
 
 ## Run on Local Machine
-- In previous section, apps is running on docker.
+- In previous section, applications are running on docker.
 - If you want to run on your local machine instead of docker, or you want to custom code and run it on docker again, please follow the instructions below.
 
 ### Java HTTP Client
