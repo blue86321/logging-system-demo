@@ -68,7 +68,7 @@ docker compose --env-file ./tf/tf_output.log up
 - Go to AWS OpenSearch Dashboard
   - URL
     - `cat ./tf/tf_output.log`
-    - check `AWS_OPENSEARCH_DASHBOARD` value
+    - check `AWS_OPENSEARCH_DASHBOARD` value, visit as a url (with `https://` prefix)
   - Login
     - `username`: admin
     - `password`: Admin_123
