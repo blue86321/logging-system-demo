@@ -115,7 +115,8 @@ terraform init
 - Manually configure `terraform.tfvars`:
   - AWS `access_key`
   - AWS `secret_key`
-  - `cognito_master_email`: As a default master user of OpenSearch.
+  - `cognito_master_email`: As a default master user, with full access permission in OpenSearch.
+  - `cognito_limited_email`: As a default limited user, with only dashboard and readall permission in OpenSearch.
     - **You will receive password via email.**
     - Use email and password to login `OpenSearch Dashboard` when instance is ready.
 
@@ -142,34 +143,37 @@ docker compose -f docker-compose-aws.yaml --env-file ./tf/tf_output.log up
 curl -d '{"log_name": "myapp-click","click_text": "action.goBack","uid": "1", "time": "2023-04-07T06:58:28.123456"}' -XPOST -H "content-type: application/json" http://localhost:9880/frontendTag
 ```
 
-### Manual work for the dashboard
+### Discover Data
 
-#### OpenSearch Dashboard
-1. Go to AWS OpenSearch Dashboard
+1. Go to AWS OpenSearch Dashboard (two options).
    - URL
      - `cat ./tf/tf_output.log`
-     - check `AWS_OPENSEARCH_DASHBOARD` value
+     - check `AWS_OPENSEARCH_DASHBOARD` value, visit as a url (with `https://` prefix)
    - AWS Console
-     - AWS `OpenSearch` -> `myapp` -> `OpenSearch Dashboards URL`
-2. Login with email and password (received from email)
-3. `Create Index Pattern` (left-side menu -> `Stack Management` -> `Index Patterns`)
-   - `myapp-login-*` (timeField: `@timestamp`)
-   - `myapp-order-*` (timeField: `@timestamp`)
-   - `myapp-click-*` (timeField: `@timestamp`)
+     - AWS `OpenSearch` -> `YOUR_OPENSEARCH_DOMAIN_NAME` -> `OpenSearch Dashboards URL`
+2. Login with either `master` or `limited` email and password (password is sent to the email).
 4. Go to `Discover` to view the results.
-5. (Optional) Permission config for `limited_user`
-   - left side menu `Security`
-   - `Explore existing roles`
-   - search `opensearch_dashboards_user` and `readall`
-   - `Mapped users` -> `Map users`
-   - In backend roles, enter arn of `myapp-cognito-auth-limited-role`. e.g. `arn:aws:iam::123456789:role/myapp-cognito-auth-limited-role`
-   - Click `Map`
 
-- After setting up permission config, new cognito user **without** a user group has no permissions to enter the dashboard.
-
-#### Discover Data
+- New cognito user **without** a user group has no permissions to enter the dashboard.
 
 <img src="./imgs/OpenSearchDemoResult.jpg" width="700"/>
+
+
+### Check Permissions
+
+#### Master User
+1. Go to AWS OpenSearch Dashboard (See [Discover Data](#discover-data-1)).
+2. Login with **master** email and password (password is sent to the email).
+3. Check out permissions (upper-right icon -> `View roles and identities`).
+
+<img src="./imgs/OpenSearchDemoMasterPermission.jpg" width="400"/>
+
+#### Limited User
+1. Go to AWS OpenSearch Dashboard (See [Discover Data](#discover-data-1)).
+2. Login with **limited** email and password (password is sent to the email).
+3. Check out permissions (upper-right icon -> `View roles and identities`).
+
+<img src="./imgs/OpenSearchDemoLimitedPermission.jpg" width="400"/>
 
 ### Destroy
 ```sh

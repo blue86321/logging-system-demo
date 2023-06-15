@@ -6,7 +6,7 @@ resource "aws_iam_service_linked_role" "es" {
 
 resource "aws_opensearch_domain" "this" {
   domain_name    = var.domain_name
-  engine_version = "OpenSearch_2.5"
+  engine_version = "OpenSearch_1.3"
 
   advanced_security_options {
     enabled = true
@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "es_access_policy" {
       identifiers = ["*"]
     }
     actions   = ["es:*"]
-    resources = ["arn:aws:es:${var.region}:${data.aws_caller_identity.current.arn}:domain/${var.domain_name}/*"]
+    resources = ["arn:aws:es:${var.region}:${data.aws_caller_identity.current.account_id}:domain/${var.domain_name}/*"]
   }
 }
 

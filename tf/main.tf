@@ -4,6 +4,12 @@ provider "aws" {
   region     = var.region
 }
 
+provider "opensearch" {
+  url                 = "https://${module.opensearch.opensearch_endpoint}"
+  aws_region          = var.region
+  aws_assume_role_arn = module.opensearch.opensearch_master_role_arn
+}
+
 module "opensearch" {
   source = "./modules/opensearch"
 
@@ -11,5 +17,8 @@ module "opensearch" {
   region      = var.region
   cognito_master_user_list = [{
     username = var.cognito_master_email
+  }]
+  cognito_limited_user_list = [{
+    username = var.cognito_limited_email
   }]
 }

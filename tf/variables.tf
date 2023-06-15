@@ -18,6 +18,12 @@ variable "domain_name" {
 }
 
 variable "cognito_master_email" {
-  description = "An user email in Cognito master user group"
+  description = "An user email in Cognito master user group with full access permission on OpenSearch"
+  type        = string
+}
+
+
+variable "cognito_limited_email" {
+  description = "An user email in Cognito limited user group with dashboard permission and readall permission on OpenSearch"
   type        = string
 }

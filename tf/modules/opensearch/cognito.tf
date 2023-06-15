@@ -159,6 +159,6 @@ resource "aws_cognito_user_in_group" "limited" {
     user.username => user
   }
   user_pool_id = aws_cognito_user_pool.this.id
-  group_name   = aws_cognito_user_group.master.name
+  group_name   = aws_cognito_user_group.limited.name
   username     = each.key
 }
