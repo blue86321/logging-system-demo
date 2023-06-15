@@ -131,8 +131,12 @@ cd ..
 **Note**
 - If you face an error `Domain already associated with another user pool`, which means someone has already used this cognito custom domain as his authentication domain. This domain needs to be **globally unique**, as the pattern is `https://{domain}.auth.{region}.amazoncognito.com`.
 - To address this issues, either one of options is available:
-  - **Set another OpenSearch domain**: Modify your domain in `terraform.tfvars` to use another domain name. (in our terraform, cognito custom domain is the same as your OpenSearch domain)
-  - **Set another user pool domain**: Modify `cognito.tf` -> resource `aws_cognito_user_pool_domain` -> `name`.
+  - **Set another OpenSearch domain**:
+    - Modify your domain in `terraform.tfvars` to use another domain name. (in our terraform, cognito custom domain is the same as your OpenSearch domain)
+    - If so, remember to edit `log_name` prefix in all logs, including [test-app-stdout/MyAppLogging.py](./test-app-stdout/MyAppLogging.py), and `curl` in the next section.
+      - e.g. `"log_name": "myapp-click"` -> `"log_name": "YOUR_DOMAIN_NAME-click"`
+  - **Set another user pool domain**:
+    - Modify [tf/modules/opensearch/cognito.tf](./tf/modules/opensearch/cognito.tf#L36) -> resource `aws_cognito_user_pool_domain` -> `domain`.
 
 ### Docker
 ```sh
