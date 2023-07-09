@@ -1,5 +1,9 @@
 # Logging System Demo
 
+This repo is a demo to implement a logging system.
+
+The origin article is on Medium: [Implementing a Centralized Logging System: A Journey at Gogoout](https://medium.com/gogooutlab/4b1d44cff7ce).
+
 ## Overview
 This demo is to show how to implement a logging system.
 - **Demo1**: Fluent Bit simply collects loggings and output to **stdout**
