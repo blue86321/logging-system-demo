@@ -1,6 +1,3 @@
-region      = "us-west-1"
-access_key  = ""
-secret_key  = ""
-domain_name = "myapp"
-cognito_master_email = ""
+domain_name           = "myapp"
+cognito_master_email  = ""
 cognito_limited_email = ""

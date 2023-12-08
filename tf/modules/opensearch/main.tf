@@ -6,7 +6,7 @@ resource "aws_iam_service_linked_role" "es" {
 
 resource "aws_opensearch_domain" "this" {
   domain_name    = var.domain_name
-  engine_version = "OpenSearch_1.3"
+  engine_version = "OpenSearch_2.9"
 
   advanced_security_options {
     enabled = true
@@ -99,6 +99,7 @@ resource "aws_opensearch_domain_policy" "this" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<-COMMAND
       aws cognito-identity set-identity-pool-roles \
+        --region ${var.region} \
         --identity-pool-id ${aws_cognito_identity_pool.this.id} \
         --roles authenticated=${aws_iam_role.auth_master.arn},unauthenticated=${aws_iam_role.unauth.arn} \
         --role-mappings '{"cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.this.id}:${aws_cognito_managed_user_pool_client.this.id}":{"Type": "Token", "AmbiguousRoleResolution": "Deny"}}'

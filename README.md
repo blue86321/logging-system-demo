@@ -106,6 +106,10 @@ docker compose -f docker-compose-es.yaml down --rmi all
 
 ### Terraform
 
+#### Install
+- [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html): will be used in [dashboard-index-pattern.tf](./tf/modules/opensearch/dashboard-index-pattern.tf) and terraform provisioners for `aws cognito-identity set-identity-pool-roles`.
+
 #### Init
 ```sh
 # Terraform (AWS OpenSearch)
@@ -117,30 +121,41 @@ terraform init
 #### Apply
 
 - Manually configure `terraform.tfvars`:
-  - AWS `access_key`
-  - AWS `secret_key`
   - `cognito_master_email`: As a default master user, with full access permission in OpenSearch.
   - `cognito_limited_email`: As a default limited user, with only dashboard and readall permission in OpenSearch.
     - **You will receive password via email.**
     - Use email and password to login `OpenSearch Dashboard` when instance is ready.
+- Setup AWS env variables
+    ```sh
+    cat <<EOF >> ~/.zshrc
 
-```sh
-# If there is an error related to service_linked_role, just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
-# Note: It takes about 30 minutes to complete
-terraform apply -auto-approve
-# Config for fluent-bit (only for demo)
-terraform output > tf_output.log
-cd ..
-```
-**Note**
-- If you face an error `Domain already associated with another user pool`, which means someone has already used this cognito custom domain as his authentication domain. This domain needs to be **globally unique**, as the pattern is `https://{domain}.auth.{region}.amazoncognito.com`.
-- To address this issues, either one of options is available:
-  - **Set another OpenSearch domain**:
-    - Modify your domain in `terraform.tfvars` to use another domain name. (in our terraform, cognito custom domain is the same as your OpenSearch domain)
-    - If so, remember to edit `log_name` prefix in all logs, including [test-app-stdout/MyAppLogging.py](./test-app-stdout/MyAppLogging.py), and `curl` in the next section.
-      - e.g. `"log_name": "myapp-click"` -> `"log_name": "YOUR_DOMAIN_NAME-click"`
-  - **Set another user pool domain**:
-    - Modify [tf/modules/opensearch/cognito.tf](./tf/modules/opensearch/cognito.tf#L36) -> resource `aws_cognito_user_pool_domain` -> `domain`.
+    # AWS variables for Terraform and aws-cli
+    export AWS_ACCESS_KEY_ID="<YOUR_ACCESS_KEY>"
+    export AWS_SECRET_ACCESS_KEY="<YOUR_SECRET_ACCESS_KEY>"
+    export AWS_DEFAULT_REGION="us-west-1"
+    export TF_VAR_access_key=${AWS_ACCESS_KEY_ID}
+    export TF_VAR_secret_key=${AWS_SECRET_ACCESS_KEY}
+    export TF_VAR_region=${AWS_DEFAULT_REGION}
+    EOF
+    source ~/.zshrc
+    ```
+- Apply Terraform
+  ```sh
+  # If there is an error related to service_linked_role, just comment all "aws_iam_service_linked_role" in `tf/main.tf`.
+  # Note: It takes about 30 minutes to complete
+  terraform apply -auto-approve
+  # Config for fluent-bit (only for demo)
+  terraform output > tf_output.log
+  cd ..
+  ```
+  - If you face an error `Domain already associated with another user pool`, which means someone has already used this cognito custom domain as his authentication domain. This domain needs to be **globally unique**, as the pattern is `https://{domain}.auth.{region}.amazoncognito.com`.
+  - To address this issues, either one of options is available:
+    - **Set another OpenSearch domain**:
+      - Modify your domain in `terraform.tfvars` to use another domain name. (in our terraform, cognito custom domain is the same as your OpenSearch domain)
+      - If so, remember to edit `log_name` prefix in all logs, including [test-app-stdout/MyAppLogging.py](./test-app-stdout/MyAppLogging.py), and `curl` in the next section.
+        - e.g. `"log_name": "myapp-click"` -> `"log_name": "YOUR_DOMAIN_NAME-click"`
+    - **Set another user pool domain**:
+      - Modify [tf/modules/opensearch/cognito.tf](./tf/modules/opensearch/cognito.tf#L36) -> resource `aws_cognito_user_pool_domain` -> `domain`.
 
 ### Docker
 ```sh

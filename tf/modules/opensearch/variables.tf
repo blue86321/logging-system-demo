@@ -1,17 +1,17 @@
 variable "region" {
   description = "AWS Region"
-  type = string
+  type        = string
 }
 
 variable "domain_name" {
   description = "OpenSearch domain name"
-  type = string
+  type        = string
 }
 
 variable "instance_type" {
   description = "OpenSearch instance type"
-  type = string
-  default = "t3.small.search"   # free tier
+  type        = string
+  default     = "t3.small.search" # free tier
 }
 
 variable "cognito_master_user_list" {
